@@ -2,10 +2,7 @@ package com.github.alviannn.sqlhelper;
 
 import com.github.alviannn.sqlhelper.utils.Closer;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 /**
  * query handler
@@ -44,6 +41,20 @@ public class Query {
     }
 
     /**
+     * executes the query
+     *
+     * @throws SQLException if the query failed to be executed
+     */
+    public void execute() throws SQLException {
+        try (Closer closer = new Closer()) {
+            Connection conn = helper.isHikari() ? closer.add(helper.getConnection()) : helper.getConnection();
+            Statement statement = closer.add(conn.createStatement());
+
+            statement.execute(sqlQuery);
+        }
+    }
+
+    /**
      * fetches the SQL results, this can be used to fetch ResultSet too
      *
      * @param params the parameter values
@@ -64,12 +75,35 @@ public class Query {
     /**
      * fetches the SQL results, this can be used to fetch ResultSet too
      *
-     * @param params the parameter values
+     * @return the SQL results
+     * @throws SQLException if the query failed to be executed or failed to fetch the SQL results
+     */
+    public Results getResults() throws SQLException {
+        Connection connection = helper.getConnection();
+        Statement statement = connection.createStatement();
+
+        ResultSet set = statement.executeQuery(sqlQuery);
+        return new Results(connection, statement, set, helper.isHikari());
+    }
+
+    /**
+     * fetches the SQL results, this can be used to fetch ResultSet too
+     *
      * @return the SQL results
      * @throws SQLException if the query failed to be executed or failed to fetch the SQL results
      */
     public Results results(Object... params) throws SQLException {
         return this.getResults(params);
+    }
+
+    /**
+     * fetches the SQL results, this can be used to fetch ResultSet too
+     *
+     * @return the SQL results
+     * @throws SQLException if the query failed to be executed or failed to fetch the SQL results
+     */
+    public Results results() throws SQLException {
+        return this.getResults();
     }
 
 }

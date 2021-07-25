@@ -5,12 +5,13 @@ import lombok.Getter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 
 @Getter
 public class Results implements AutoCloseable {
 
     private final Connection connection;
-    private final PreparedStatement statement;
+    private final Statement statement;
     private final ResultSet resultSet;
     private final boolean hikari;
 
@@ -22,7 +23,7 @@ public class Results implements AutoCloseable {
      * @param resultSet  the result set
      * @param hikari     true if hikari is being used, otherwise false
      */
-    public Results(Connection connection, PreparedStatement statement, ResultSet resultSet, boolean hikari) {
+    public Results(Connection connection, Statement statement, ResultSet resultSet, boolean hikari) {
         this.connection = connection;
         this.statement = statement;
         this.resultSet = resultSet;
